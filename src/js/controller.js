@@ -41,8 +41,12 @@ const controlSearchResults = async function () {
     // 1) Get search query
     const query = searchView.getQuery();
 
-    // If search box is empty, do nothing
-    if (!query) return;
+    // If search box is empty, clear results
+    if (!query) {
+      resultsView.render([]);
+      paginationView.render({});
+      return;
+    }
 
     // 2) Show spinner
     resultsView.renderSpinner();
