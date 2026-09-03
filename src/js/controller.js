@@ -16,6 +16,7 @@ const controlRecipes = async function () {
     const id = window.location.hash.slice(1);
 
     if (!id) return;
+
     recipeView.renderSpinner();
 
     // 0) Update results view to mark selected search result
@@ -37,19 +38,22 @@ const controlRecipes = async function () {
 
 const controlSearchResults = async function () {
   try {
-    resultsView.renderSpinner();
-
     // 1) Get search query
     const query = searchView.getQuery();
+
+    // If search box is empty, do nothing
     if (!query) return;
 
-    // 2) Load search results
+    // 2) Show spinner
+    resultsView.renderSpinner();
+
+    // 3) Load search results
     await model.loadSearchResults(query);
 
-    // 3) Render results
+    // 4) Render results
     resultsView.render(model.getSearchResultsPage());
 
-    // 4) Render initial pagination buttons
+    // 5) Render initial pagination buttons
     paginationView.render(model.state.search);
   } catch (err) {
     console.log(err);
@@ -74,13 +78,16 @@ const controlServings = function (newServings) {
 
 const controlAddBookmark = function () {
   // 1) Add/remove bookmark
-  if (!model.state.recipe.bookmarked) model.addBookmark(model.state.recipe);
-  else model.deleteBookmark(model.state.recipe.id);
+  if (!model.state.recipe.bookmarked) {
+    model.addBookmark(model.state.recipe);
+  } else {
+    model.deleteBookmark(model.state.recipe.id);
+  }
 
   // 2) Update recipe view
   recipeView.update(model.state.recipe);
 
-  // 3) Render bookmarks
+  // 3) Render bookmark view
   bookmarksView.render(model.state.bookmarks);
 };
 
@@ -119,9 +126,7 @@ const controlAddRecipe = async function (newRecipe) {
   }
 };
 
-
 const init = function () {
- 
   bookmarksView.addHandlerRender(controlBookmarks);
   recipeView.addHandlerRender(controlRecipes);
   recipeView.addHandlerUpdateServings(controlServings);
@@ -129,6 +134,6 @@ const init = function () {
   searchView.addHandlerSearch(controlSearchResults);
   paginationView.addHandlerClick(controlPagination);
   addRecipeView.addHandlerUpload(controlAddRecipe);
-
 };
+
 init();
